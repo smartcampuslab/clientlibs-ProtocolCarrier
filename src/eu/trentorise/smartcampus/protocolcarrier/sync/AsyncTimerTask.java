@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.sync;
+package eu.trentorise.smartcampus.protocolcarrier.sync;
 
 import java.util.List;
 import java.util.TimerTask;
@@ -6,15 +6,15 @@ import java.util.TimerTask;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import eu.trentorise.smartcampus.Communicator;
-import eu.trentorise.smartcampus.common.Constants;
-import eu.trentorise.smartcampus.common.Status;
-import eu.trentorise.smartcampus.custom.AsyncMessageRequest;
-import eu.trentorise.smartcampus.custom.MessageResponse;
-import eu.trentorise.smartcampus.data.AsyncDbHelper;
-import eu.trentorise.smartcampus.exceptions.ConnectionException;
-import eu.trentorise.smartcampus.exceptions.ProtocolException;
-import eu.trentorise.smartcampus.exceptions.TimeoutException;
+import eu.trentorise.smartcampus.protocolcarrier.Communicator;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
+import eu.trentorise.smartcampus.protocolcarrier.common.Status;
+import eu.trentorise.smartcampus.protocolcarrier.custom.AsyncMessageRequest;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
+import eu.trentorise.smartcampus.protocolcarrier.data.AsyncDbHelper;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.TimeoutException;
 
 public class AsyncTimerTask extends TimerTask {
 

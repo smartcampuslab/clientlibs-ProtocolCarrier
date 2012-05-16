@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.common;
+package eu.trentorise.smartcampus.protocolcarrier.common;
 
 import java.io.BufferedReader;
 import java.io.IOException;

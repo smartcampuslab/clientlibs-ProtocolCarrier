@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.exceptions;
+package eu.trentorise.smartcampus.protocolcarrier.exceptions;
 
 public class InvocationException extends Exception {
 	private static final long serialVersionUID = -1793506422727248081L;

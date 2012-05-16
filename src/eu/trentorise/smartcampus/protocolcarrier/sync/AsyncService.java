@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.sync;
+package eu.trentorise.smartcampus.protocolcarrier.sync;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +13,10 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.util.Log;
-import eu.trentorise.smartcampus.common.Constants;
-import eu.trentorise.smartcampus.common.PcIntents;
-import eu.trentorise.smartcampus.common.Setup;
-import eu.trentorise.smartcampus.common.Status;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
+import eu.trentorise.smartcampus.protocolcarrier.common.PcIntents;
+import eu.trentorise.smartcampus.protocolcarrier.common.Setup;
+import eu.trentorise.smartcampus.protocolcarrier.common.Status;
 
 public class AsyncService extends Service {
 

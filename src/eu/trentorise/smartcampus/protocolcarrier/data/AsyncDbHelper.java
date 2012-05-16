@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.data;
+package eu.trentorise.smartcampus.protocolcarrier.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +11,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import eu.trentorise.smartcampus.common.Constants.Method;
-import eu.trentorise.smartcampus.common.Setup;
-import eu.trentorise.smartcampus.custom.AsyncMessageRequest;
-import eu.trentorise.smartcampus.custom.DeferredConf;
-import eu.trentorise.smartcampus.custom.MessageRequest;
-import eu.trentorise.smartcampus.exceptions.InvocationException;
+import eu.trentorise.smartcampus.protocolcarrier.common.Setup;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
+import eu.trentorise.smartcampus.protocolcarrier.custom.AsyncMessageRequest;
+import eu.trentorise.smartcampus.protocolcarrier.custom.DeferredConf;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageRequest;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.InvocationException;
 
 public class AsyncDbHelper extends SQLiteOpenHelper {
 

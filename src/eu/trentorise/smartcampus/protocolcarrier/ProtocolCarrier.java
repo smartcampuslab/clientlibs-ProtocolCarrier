@@ -1,19 +1,19 @@
-package eu.trentorise.smartcampus;
+package eu.trentorise.smartcampus.protocolcarrier;
 
 import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import eu.trentorise.smartcampus.common.Constants;
-import eu.trentorise.smartcampus.common.PcIntents;
-import eu.trentorise.smartcampus.custom.DeferredConf;
-import eu.trentorise.smartcampus.custom.MessageRequest;
-import eu.trentorise.smartcampus.custom.MessageResponse;
-import eu.trentorise.smartcampus.data.AsyncDbHelper;
-import eu.trentorise.smartcampus.exceptions.ConnectionException;
-import eu.trentorise.smartcampus.exceptions.ProtocolException;
-import eu.trentorise.smartcampus.sync.AsyncService;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
+import eu.trentorise.smartcampus.protocolcarrier.common.PcIntents;
+import eu.trentorise.smartcampus.protocolcarrier.custom.DeferredConf;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageRequest;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
+import eu.trentorise.smartcampus.protocolcarrier.data.AsyncDbHelper;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
+import eu.trentorise.smartcampus.protocolcarrier.sync.AsyncService;
 
 public class ProtocolCarrier {
 

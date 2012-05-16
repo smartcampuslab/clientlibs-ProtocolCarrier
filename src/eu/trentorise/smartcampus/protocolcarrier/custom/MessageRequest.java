@@ -1,6 +1,6 @@
-package eu.trentorise.smartcampus.custom;
+package eu.trentorise.smartcampus.protocolcarrier.custom;
 
-import eu.trentorise.smartcampus.common.Constants.Method;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
 
 public class MessageRequest {
 	private Method method = Method.GET; // not required

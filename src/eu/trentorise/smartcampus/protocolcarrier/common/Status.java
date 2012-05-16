@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.common;
+package eu.trentorise.smartcampus.protocolcarrier.common;
 
 import android.content.Context;
 

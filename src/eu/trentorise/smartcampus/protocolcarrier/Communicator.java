@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus;
+package eu.trentorise.smartcampus.protocolcarrier;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -19,15 +19,15 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import android.net.http.AndroidHttpClient;
-import eu.trentorise.smartcampus.common.Constants;
-import eu.trentorise.smartcampus.common.Constants.Method;
-import eu.trentorise.smartcampus.common.Constants.RequestHeader;
-import eu.trentorise.smartcampus.common.Constants.ResponseHeader;
-import eu.trentorise.smartcampus.common.Utils;
-import eu.trentorise.smartcampus.custom.MessageRequest;
-import eu.trentorise.smartcampus.custom.MessageResponse;
-import eu.trentorise.smartcampus.exceptions.ConnectionException;
-import eu.trentorise.smartcampus.exceptions.ProtocolException;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
+import eu.trentorise.smartcampus.protocolcarrier.common.Utils;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants.RequestHeader;
+import eu.trentorise.smartcampus.protocolcarrier.common.Constants.ResponseHeader;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageRequest;
+import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
 
 public class Communicator {
 

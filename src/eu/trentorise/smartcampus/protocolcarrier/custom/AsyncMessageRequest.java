@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.custom;
+package eu.trentorise.smartcampus.protocolcarrier.custom;
 
 public class AsyncMessageRequest {
 

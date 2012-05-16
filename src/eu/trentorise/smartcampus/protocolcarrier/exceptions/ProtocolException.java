@@ -1,4 +1,4 @@
-package eu.trentorise.smartcampus.exceptions;
+package eu.trentorise.smartcampus.protocolcarrier.exceptions;
 
 public class ProtocolException extends Exception {
 	private static final long serialVersionUID = -4222758494637283953L;
