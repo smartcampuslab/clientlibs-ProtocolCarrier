@@ -8,7 +8,7 @@
 
     <application>
         <service
-            android:name="eu.trentorise.smartcampus.sync.AsyncService"
+            android:name=".protocolcarrier.sync.AsyncService"
             android:exported="true" />
     </application>
 
