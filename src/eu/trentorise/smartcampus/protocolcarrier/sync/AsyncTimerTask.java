@@ -13,6 +13,7 @@ import eu.trentorise.smartcampus.protocolcarrier.custom.AsyncMessageRequest;
 import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
 import eu.trentorise.smartcampus.protocolcarrier.data.AsyncDbHelper;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.TimeoutException;
 
@@ -64,6 +65,9 @@ public class AsyncTimerTask extends TimerTask {
 					} catch (ProtocolException e) {
 						Log.e(this.getClass().getName(), e.getMessage());
 						isSuccessful = process(aMsgRequest, null, ProtocolException.PROTOCOL_EXCEPTION);
+					} catch (SecurityException e) {
+						Log.e(this.getClass().getName(), e.getMessage());
+						isSuccessful = process(aMsgRequest, null, SecurityException.SECURITY_EXCEPTION);
 					}
 				} else {
 					process(aMsgRequest, null, TimeoutException.TIMEOUT_EXCEPTION);

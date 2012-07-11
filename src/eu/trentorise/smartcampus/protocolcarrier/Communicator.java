@@ -1,6 +1,7 @@
 package eu.trentorise.smartcampus.protocolcarrier;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -20,19 +22,20 @@ import org.apache.http.params.HttpParams;
 
 import android.net.http.AndroidHttpClient;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
-import eu.trentorise.smartcampus.protocolcarrier.common.Utils;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.RequestHeader;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.ResponseHeader;
+import eu.trentorise.smartcampus.protocolcarrier.common.Utils;
 import eu.trentorise.smartcampus.protocolcarrier.custom.MessageRequest;
 import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
+import eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException;
 
 public class Communicator {
 
 	public static MessageResponse call(MessageRequest msgRequest, String appToken, String authToken,
-			Long responseTimeout) throws ConnectionException, ProtocolException {
+			Long responseTimeout) throws ConnectionException, ProtocolException, SecurityException {
 		MessageResponse msgResponse = null;
 
 		try {
@@ -76,19 +79,35 @@ public class Communicator {
 	}
 
 	private static HttpRequestBase buildRequest(MessageRequest msgRequest, String appToken, String authToken)
-			throws URISyntaxException {
-		String[] targetHostTokens = msgRequest.getTargetHost().split(":");
-		int targetHostPort = targetHostTokens.length > 1 ? Integer.parseInt(targetHostTokens[1])
-				: Constants.URI_DEFAULT_PORT;
-
-		URI uri = new URI(Constants.URI_DEFAULT_SCHEME, null, targetHostTokens[0], targetHostPort,
-				msgRequest.getTargetAddress(), msgRequest.getQuery(), null);
+			throws URISyntaxException, UnsupportedEncodingException {
+		String[] targetHostTokens = msgRequest.getTargetHost().split("://");
+		String scheme = null;
+		String host = null;
+		if (targetHostTokens.length > 1) {
+			scheme = targetHostTokens[0];
+			host = targetHostTokens[1];
+		} else {
+			scheme = Constants.URI_DEFAULT_SCHEME;
+			host = targetHostTokens[0];
+		}
+		targetHostTokens = host.split(":");
+		
+		int port = targetHostTokens.length > 1 ? Integer.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT;
+		host = targetHostTokens[0];
+		String path = msgRequest.getTargetAddress();
+		if (!path.startsWith("/")) path = "/"+path;
+		
+		URI uri = new URI(scheme, null, host, port, path, msgRequest.getQuery(), null);
 
 		String uriString = uri.toString();
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
-			request = new HttpPost(uriString);
+			HttpPost post = new HttpPost(uriString);
+			StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+			se.setContentType(msgRequest.getContentType());
+			post.setEntity(se);  
+			request = post;
 		} else if (msgRequest.getMethod().equals(Method.PUT)) {
 			request = new HttpPut(uriString);
 		} else if (msgRequest.getMethod().equals(Method.DELETE)) {

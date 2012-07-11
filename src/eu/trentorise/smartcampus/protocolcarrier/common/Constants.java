@@ -12,7 +12,7 @@ public class Constants {
 	}
 
 	public enum RequestHeader {
-		ACCEPT("Accept"), APP_TOKEN("appToken"), AUTH_TOKEN("authToken"), MESSAGEID("messageID");
+		ACCEPT("Accept"), APP_TOKEN("APP_TOKEN"), AUTH_TOKEN("AUTH_TOKEN"), MESSAGEID("messageID");
 
 		private String header;
 
