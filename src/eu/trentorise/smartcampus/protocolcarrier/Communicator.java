@@ -55,6 +55,14 @@ public class Communicator {
 			HttpResponse response = httpClient.execute(request);
 
 			int status = response.getStatusLine().getStatusCode();
+			
+			if (status == Constants.CODE_SECURITY_ERROR){
+				throw new SecurityException("Invalid token");
+			}
+			if (status != 200) {
+				throw new ProtocolException("Internal error: "+status);
+			}
+			
 			long timestamp = AndroidHttpClient.parseDate(response.getFirstHeader(ResponseHeader.DATE.toString())
 					.getValue());
 			msgResponse = new MessageResponse(status, timestamp);

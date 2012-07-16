@@ -2,6 +2,8 @@ package eu.trentorise.smartcampus.protocolcarrier.common;
 
 public class Constants {
 
+	public static final int CODE_SECURITY_ERROR = 403;
+	
 	public static String USER_AGENT = "SmartCampus Android Client";
 	public static String CHARSET = "utf-8";
 	public static String URI_DEFAULT_SCHEME = "http";
