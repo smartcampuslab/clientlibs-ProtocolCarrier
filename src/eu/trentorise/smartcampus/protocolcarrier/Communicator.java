@@ -117,7 +117,11 @@ public class Communicator {
 			post.setEntity(se);  
 			request = post;
 		} else if (msgRequest.getMethod().equals(Method.PUT)) {
-			request = new HttpPut(uriString);
+			HttpPut put = new HttpPut(uriString);
+			StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+			se.setContentType(msgRequest.getContentType());
+			put.setEntity(se);  
+			request = put;
 		} else if (msgRequest.getMethod().equals(Method.DELETE)) {
 			request = new HttpDelete(uriString);
 		} else {
