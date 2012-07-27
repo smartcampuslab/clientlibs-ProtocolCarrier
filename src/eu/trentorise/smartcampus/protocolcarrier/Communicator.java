@@ -72,7 +72,6 @@ public class Communicator {
 			if (result != null) {
 				msgResponse.setBody(result);
 			}
-			// TODO: SECURITY_EXCEPTION???
 		} catch (SocketTimeoutException e) {
 			throw new ConnectionException(e.getMessage());
 		} catch (ClientProtocolException e) {
