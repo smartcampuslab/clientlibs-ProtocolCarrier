@@ -111,15 +111,19 @@ public class Communicator {
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
 			HttpPost post = new HttpPost(uriString);
-			StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
-			se.setContentType(msgRequest.getContentType());
-			post.setEntity(se);  
+			if (msgRequest.getBody() != null) {
+				StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+				se.setContentType(msgRequest.getContentType());
+				post.setEntity(se);  
+			}
 			request = post;
 		} else if (msgRequest.getMethod().equals(Method.PUT)) {
 			HttpPut put = new HttpPut(uriString);
-			StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
-			se.setContentType(msgRequest.getContentType());
-			put.setEntity(se);  
+			if (msgRequest.getBody() != null) {
+				StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+				se.setContentType(msgRequest.getContentType());
+				put.setEntity(se);  
+			}
 			request = put;
 		} else if (msgRequest.getMethod().equals(Method.DELETE)) {
 			request = new HttpDelete(uriString);
