@@ -15,6 +15,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -34,8 +36,9 @@ import eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException;
 
 public class Communicator {
 
-	public static MessageResponse call(MessageRequest msgRequest, String appToken, String authToken,
-			Long responseTimeout) throws ConnectionException, ProtocolException, SecurityException {
+	public static MessageResponse call(MessageRequest msgRequest,
+			String appToken, String authToken, Long responseTimeout)
+			throws ConnectionException, ProtocolException, SecurityException {
 		MessageResponse msgResponse = null;
 
 		try {
@@ -43,34 +46,46 @@ public class Communicator {
 
 			if (responseTimeout != null && responseTimeout > 0) {
 				HttpParams httpParameters = new BasicHttpParams();
-				HttpConnectionParams.setConnectionTimeout(httpParameters, responseTimeout.intValue());
-				HttpConnectionParams.setSoTimeout(httpParameters, responseTimeout.intValue());
+				HttpConnectionParams.setConnectionTimeout(httpParameters,
+						responseTimeout.intValue());
+				HttpConnectionParams.setSoTimeout(httpParameters,
+						responseTimeout.intValue());
 				httpClient = new DefaultHttpClient(httpParameters);
 			} else {
 				httpClient = new DefaultHttpClient();
 			}
 
-			HttpRequestBase request = buildRequest(msgRequest, appToken, authToken);
+			HttpRequestBase request = buildRequest(msgRequest, appToken,
+					authToken);
 
 			HttpResponse response = httpClient.execute(request);
 
 			int status = response.getStatusLine().getStatusCode();
-			
-			if (status == Constants.CODE_SECURITY_ERROR){
+
+			if (status == Constants.CODE_SECURITY_ERROR) {
 				throw new SecurityException("Invalid token");
 			}
 			if (status != 200) {
-				throw new ProtocolException("Internal error: "+status);
+				throw new ProtocolException("Internal error: " + status);
 			}
-			
-			long timestamp = AndroidHttpClient.parseDate(response.getFirstHeader(ResponseHeader.DATE.toString())
-					.getValue());
+
+			long timestamp = AndroidHttpClient.parseDate(response
+					.getFirstHeader(ResponseHeader.DATE.toString()).getValue());
 			msgResponse = new MessageResponse(status, timestamp);
 
-			// content
-			String result = Utils.responseContentToString(response.getEntity().getContent());
-			if (result != null) {
-				msgResponse.setBody(result);
+			// file
+			if (msgRequest.isRequestFile()) {
+				msgResponse.setFileContent(Utils
+						.responseContentToByteArray(response.getEntity()
+								.getContent()));
+			} else {
+
+				// content
+				String result = Utils.responseContentToString(response
+						.getEntity().getContent());
+				if (result != null) {
+					msgResponse.setBody(result);
+				}
 			}
 		} catch (SocketTimeoutException e) {
 			throw new ConnectionException(e.getMessage());
@@ -85,8 +100,9 @@ public class Communicator {
 		return msgResponse;
 	}
 
-	private static HttpRequestBase buildRequest(MessageRequest msgRequest, String appToken, String authToken)
-			throws URISyntaxException, UnsupportedEncodingException {
+	private static HttpRequestBase buildRequest(MessageRequest msgRequest,
+			String appToken, String authToken) throws URISyntaxException,
+			UnsupportedEncodingException {
 		String[] targetHostTokens = msgRequest.getTargetHost().split("://");
 		String scheme = null;
 		String host = null;
@@ -98,31 +114,46 @@ public class Communicator {
 			host = targetHostTokens[0];
 		}
 		targetHostTokens = host.split(":");
-		
-		int port = targetHostTokens.length > 1 ? Integer.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT;
+
+		int port = targetHostTokens.length > 1 ? Integer
+				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT;
 		host = targetHostTokens[0];
 		String path = msgRequest.getTargetAddress();
-		if (!path.startsWith("/")) path = "/"+path;
-		
-		URI uri = new URI(scheme, null, host, port, path, msgRequest.getQuery(), null);
+		if (!path.startsWith("/"))
+			path = "/" + path;
+
+		URI uri = new URI(scheme, null, host, port, path,
+				msgRequest.getQuery(), null);
 
 		String uriString = uri.toString();
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
 			HttpPost post = new HttpPost(uriString);
+			// fileContent !+ null -> post multipart to server upload
+			if (msgRequest.getFileContent() != null) {
+				MultipartEntity mpe = new MultipartEntity();
+
+				// "file" is constant field for multipart post according to
+				// server
+				mpe.addPart("file",
+						new ByteArrayBody(msgRequest.getFileContent(), ""));
+				post.setEntity(mpe);
+			}
 			if (msgRequest.getBody() != null) {
-				StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+				StringEntity se = new StringEntity(msgRequest.getBody(),
+						Constants.CHARSET);
 				se.setContentType(msgRequest.getContentType());
-				post.setEntity(se);  
+				post.setEntity(se);
 			}
 			request = post;
 		} else if (msgRequest.getMethod().equals(Method.PUT)) {
 			HttpPut put = new HttpPut(uriString);
 			if (msgRequest.getBody() != null) {
-				StringEntity se = new StringEntity(msgRequest.getBody(), Constants.CHARSET);
+				StringEntity se = new StringEntity(msgRequest.getBody(),
+						Constants.CHARSET);
 				se.setContentType(msgRequest.getContentType());
-				put.setEntity(se);  
+				put.setEntity(se);
 			}
 			request = put;
 		} else if (msgRequest.getMethod().equals(Method.DELETE)) {
@@ -134,7 +165,8 @@ public class Communicator {
 
 		request.addHeader(RequestHeader.APP_TOKEN.toString(), appToken);
 		request.addHeader(RequestHeader.AUTH_TOKEN.toString(), authToken);
-		request.addHeader(RequestHeader.ACCEPT.toString(), msgRequest.getContentType());
+		request.addHeader(RequestHeader.ACCEPT.toString(),
+				msgRequest.getContentType());
 
 		return request;
 	}
