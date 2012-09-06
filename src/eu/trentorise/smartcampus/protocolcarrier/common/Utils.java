@@ -23,10 +23,12 @@ public class Utils {
 		BufferedInputStream bis = new BufferedInputStream(is);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		while (bis.read(buffer) != -1) {
-			baos.write(buffer);
+		int readed = 0;
+		while ((readed = bis.read(buffer)) != -1) {
+			baos.write(buffer, 0, readed);
 		}
 
+		baos.close();
 		byte[] result = baos.toByteArray();
 		return result;
 	}
