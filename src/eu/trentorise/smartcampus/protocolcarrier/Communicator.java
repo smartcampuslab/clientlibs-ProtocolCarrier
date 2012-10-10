@@ -90,9 +90,9 @@ public class Communicator {
 		} catch (SocketTimeoutException e) {
 			throw new ConnectionException(e.getMessage());
 		} catch (ClientProtocolException e) {
-			throw new ConnectionException(e.getMessage());
-		} catch (IOException e) {
 			throw new ProtocolException(e.getMessage());
+		} catch (IOException e) {
+			throw new ConnectionException(e.getMessage());
 		} catch (URISyntaxException e) {
 			throw new ProtocolException(e.getMessage());
 		}
