@@ -5,6 +5,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -43,16 +52,18 @@ public class Communicator {
 
 		try {
 			HttpClient httpClient;
-
+			
 			if (responseTimeout != null && responseTimeout > 0) {
 				HttpParams httpParameters = new BasicHttpParams();
 				HttpConnectionParams.setConnectionTimeout(httpParameters,
 						responseTimeout.intValue());
 				HttpConnectionParams.setSoTimeout(httpParameters,
 						responseTimeout.intValue());
-				httpClient = new DefaultHttpClient(httpParameters);
+//				httpClient = new DefaultHttpClient(httpParameters);
+				httpClient = HttpsClientBuilder.getNewHttpClient(httpParameters);
 			} else {
-				httpClient = new DefaultHttpClient();
+				httpClient = HttpsClientBuilder.getNewHttpClient(null);
+//				httpClient = new DefaultHttpClient();
 			}
 
 			HttpRequestBase request = buildRequest(msgRequest, appToken,
@@ -92,8 +103,12 @@ public class Communicator {
 		} catch (ClientProtocolException e) {
 			throw new ProtocolException(e.getMessage());
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new ConnectionException(e.getMessage());
 		} catch (URISyntaxException e) {
+			throw new ProtocolException(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ProtocolException(e.getMessage());
 		}
 
@@ -116,7 +131,7 @@ public class Communicator {
 		targetHostTokens = host.split(":");
 
 		int port = targetHostTokens.length > 1 ? Integer
-				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT;
+				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT.get(scheme);
 		host = targetHostTokens[0];
 		String path = msgRequest.getTargetAddress();
 		if (!path.startsWith("/"))
@@ -169,5 +184,33 @@ public class Communicator {
 				msgRequest.getContentType());
 
 		return request;
+	}
+	
+	
+	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
+		public boolean verify(String hostname, SSLSession session) {
+			return true;
+		}
+	};
+	private static void trustEveryone() {
+		try {
+			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier(){
+	    			public boolean verify(String hostname, SSLSession session) {
+	    				return true;
+	    			}});
+			SSLContext context = SSLContext.getInstance("TLS");
+			context.init(null, new X509TrustManager[]{new X509TrustManager(){
+				public void checkClientTrusted(X509Certificate[] chain,
+						String authType) throws CertificateException {}
+				public void checkServerTrusted(X509Certificate[] chain,
+						String authType) throws CertificateException {}
+				public X509Certificate[] getAcceptedIssuers() {
+					return new X509Certificate[0];
+				}}}, new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(
+					context.getSocketFactory());
+		} catch (Exception e) { // should never happen
+			e.printStackTrace();
+		}
 	}
 }

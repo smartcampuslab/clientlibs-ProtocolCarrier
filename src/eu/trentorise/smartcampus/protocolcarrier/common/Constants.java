@@ -1,5 +1,8 @@
 package eu.trentorise.smartcampus.protocolcarrier.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Constants {
 
 	public static final int CODE_SECURITY_ERROR = 403;
@@ -7,7 +10,12 @@ public class Constants {
 	public static String USER_AGENT = "SmartCampus Android Client";
 	public static String CHARSET = "utf-8";
 	public static String URI_DEFAULT_SCHEME = "http";
-	public static int URI_DEFAULT_PORT = 80;
+	public static String URI_DEFAULT_SCHEME_SSL = "https";
+	public static Map<String,Integer> URI_DEFAULT_PORT = new HashMap<String, Integer>();
+	static {
+		URI_DEFAULT_PORT.put(URI_DEFAULT_SCHEME, 80);
+		URI_DEFAULT_PORT.put(URI_DEFAULT_SCHEME_SSL, 443);
+	}
 
 	public enum Method {
 		GET, POST, PUT, DELETE;
