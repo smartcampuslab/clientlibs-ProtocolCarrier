@@ -141,6 +141,10 @@ public class Communicator {
 				msgRequest.getQuery(), null);
 
 		String uriString = uri.toString();
+//		String uriString = msgRequest.getTargetHost()+path;
+//		if (msgRequest.getQuery() != null) {
+//			uriString += "?"+msgRequest.getQuery();
+//		}
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
