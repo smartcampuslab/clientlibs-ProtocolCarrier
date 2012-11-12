@@ -26,7 +26,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -98,6 +97,8 @@ public class Communicator {
 					msgResponse.setBody(result);
 				}
 			}
+		} catch (SecurityException e) {
+			throw e;
 		} catch (SocketTimeoutException e) {
 			throw new ConnectionException(e.getMessage());
 		} catch (ClientProtocolException e) {
