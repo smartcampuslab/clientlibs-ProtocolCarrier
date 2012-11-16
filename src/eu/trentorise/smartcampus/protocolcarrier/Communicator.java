@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -58,11 +59,11 @@ public class Communicator {
 						responseTimeout.intValue());
 				HttpConnectionParams.setSoTimeout(httpParameters,
 						responseTimeout.intValue());
-//				httpClient = new DefaultHttpClient(httpParameters);
-				httpClient = HttpsClientBuilder.getNewHttpClient(httpParameters);
+				httpClient = new DefaultHttpClient(httpParameters);
+//				httpClient = HttpsClientBuilder.getNewHttpClient(httpParameters);
 			} else {
-				httpClient = HttpsClientBuilder.getNewHttpClient(null);
-//				httpClient = new DefaultHttpClient();
+//				httpClient = HttpsClientBuilder.getNewHttpClient(null);
+				httpClient = new DefaultHttpClient();
 			}
 
 			HttpRequestBase request = buildRequest(msgRequest, appToken,
