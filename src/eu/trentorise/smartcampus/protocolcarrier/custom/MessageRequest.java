@@ -15,6 +15,8 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.protocolcarrier.custom;
 
+import java.util.List;
+
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
 
 public class MessageRequest {
@@ -22,7 +24,8 @@ public class MessageRequest {
 	private String targetHost;
 	private String targetAddress;
 	private String body = null; // not required
-	private byte[] fileContent = null;
+	// private byte[] fileContent = null;
+	private List<RequestParam> requestParams;
 	private boolean requestFile = false;
 	private String query; // not required
 	private String contentType = "application/json"; // not required
@@ -88,13 +91,13 @@ public class MessageRequest {
 		this.contentType = contentType;
 	}
 
-	public byte[] getFileContent() {
-		return fileContent;
-	}
-
-	public void setFileContent(byte[] fileContent) {
-		this.fileContent = fileContent;
-	}
+	// public byte[] getFileContent() {
+	// return fileContent;
+	// }
+	//
+	// public void setFileContent(byte[] fileContent) {
+	// this.fileContent = fileContent;
+	// }
 
 	public boolean isRequestFile() {
 		return requestFile;
@@ -102,5 +105,13 @@ public class MessageRequest {
 
 	public void setRequestFile(boolean requestFile) {
 		this.requestFile = requestFile;
+	}
+
+	public List<RequestParam> getRequestParams() {
+		return requestParams;
+	}
+
+	public void setRequestParams(List<RequestParam> requestParams) {
+		this.requestParams = requestParams;
 	}
 }
