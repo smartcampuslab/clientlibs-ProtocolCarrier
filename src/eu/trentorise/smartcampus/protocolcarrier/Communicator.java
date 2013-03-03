@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -30,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -41,10 +43,12 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import android.net.http.AndroidHttpClient;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants;
@@ -52,8 +56,11 @@ import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.RequestHeader;
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.ResponseHeader;
 import eu.trentorise.smartcampus.protocolcarrier.common.Utils;
+import eu.trentorise.smartcampus.protocolcarrier.custom.FileRequestParam;
 import eu.trentorise.smartcampus.protocolcarrier.custom.MessageRequest;
 import eu.trentorise.smartcampus.protocolcarrier.custom.MessageResponse;
+import eu.trentorise.smartcampus.protocolcarrier.custom.ObjectRequestParam;
+import eu.trentorise.smartcampus.protocolcarrier.custom.RequestParam;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException;
@@ -67,7 +74,7 @@ public class Communicator {
 
 		try {
 			HttpClient httpClient;
-			
+
 			if (responseTimeout != null && responseTimeout > 0) {
 				HttpParams httpParameters = new BasicHttpParams();
 				HttpConnectionParams.setConnectionTimeout(httpParameters,
@@ -75,9 +82,10 @@ public class Communicator {
 				HttpConnectionParams.setSoTimeout(httpParameters,
 						responseTimeout.intValue());
 				httpClient = new DefaultHttpClient(httpParameters);
-//				httpClient = HttpsClientBuilder.getNewHttpClient(httpParameters);
+				// httpClient =
+				// HttpsClientBuilder.getNewHttpClient(httpParameters);
 			} else {
-//				httpClient = HttpsClientBuilder.getNewHttpClient(null);
+				// httpClient = HttpsClientBuilder.getNewHttpClient(null);
 				httpClient = new DefaultHttpClient();
 			}
 
@@ -148,7 +156,8 @@ public class Communicator {
 		targetHostTokens = host.split(":");
 
 		int port = targetHostTokens.length > 1 ? Integer
-				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT.get(scheme);
+				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT
+				.get(scheme);
 		host = targetHostTokens[0];
 		String path = msgRequest.getTargetAddress();
 		if (!path.startsWith("/"))
@@ -158,30 +167,56 @@ public class Communicator {
 				msgRequest.getQuery(), null);
 
 		String uriString = uri.toString();
-//		String uriString = msgRequest.getTargetHost()+path;
-//		if (msgRequest.getQuery() != null) {
-//			uriString += "?"+msgRequest.getQuery();
-//		}
+		// String uriString = msgRequest.getTargetHost()+path;
+		// if (msgRequest.getQuery() != null) {
+		// uriString += "?"+msgRequest.getQuery();
+		// }
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
 			HttpPost post = new HttpPost(uriString);
-			// fileContent !+ null -> post multipart to server upload
-			if (msgRequest.getFileContent() != null) {
-				MultipartEntity mpe = new MultipartEntity();
+			HttpEntity httpEntity = null;
+			if (msgRequest.getRequestParams() != null) {
+				// if body and requestparams are either not null there is an
+				// exception
+				if (msgRequest.getBody() != null && msgRequest != null) {
+					throw new IllegalArgumentException(
+							"body and requestParams cannot be either populated");
+				}
+				httpEntity = new MultipartEntity();
 
-				// "file" is constant field for multipart post according to
-				// server
-				mpe.addPart("file",
-						new ByteArrayBody(msgRequest.getFileContent(), ""));
-				post.setEntity(mpe);
+				for (RequestParam param : msgRequest.getRequestParams()) {
+					if (param.getParamName() == null
+							|| param.getParamName().trim().length() == 0) {
+						throw new IllegalArgumentException(
+								"paramName cannot be null or empty");
+					}
+					if (param instanceof FileRequestParam) {
+						FileRequestParam fileparam = (FileRequestParam) param;
+						((MultipartEntity) httpEntity).addPart(
+								param.getParamName(),
+								new ByteArrayBody(fileparam.getContent(),
+										fileparam.getContentType(), fileparam
+												.getFilename()));
+					}
+					if (param instanceof ObjectRequestParam) {
+						ObjectRequestParam objectparam = (ObjectRequestParam) param;
+						((MultipartEntity) httpEntity).addPart(param
+								.getParamName(), new StringBody(
+								convertObject(objectparam.getVars())));
+					}
+				}
+				// mpe.addPart("file",
+				// new ByteArrayBody(msgRequest.getFileContent(), ""));
+				// post.setEntity(mpe);
 			}
 			if (msgRequest.getBody() != null) {
-				StringEntity se = new StringEntity(msgRequest.getBody(),
+				httpEntity = new StringEntity(msgRequest.getBody(),
 						Constants.CHARSET);
-				se.setContentType(msgRequest.getContentType());
-				post.setEntity(se);
+				((StringEntity) httpEntity).setContentType(msgRequest
+						.getContentType());
 			}
+			post.setEntity(httpEntity);
 			request = post;
 		} else if (msgRequest.getMethod().equals(Method.PUT)) {
 			HttpPut put = new HttpPut(uriString);
@@ -206,30 +241,50 @@ public class Communicator {
 
 		return request;
 	}
-	
-	
+
+	private static String convertObject(Map<String, Object> object) {
+		ObjectMapper jsonMapper = new ObjectMapper();
+		try {
+
+			String jsonRepresentation = jsonMapper.writeValueAsString(object);
+			return jsonRepresentation;
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+					"ObjectRequestParam cannot convert in JSON");
+		}
+	}
+
 	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
 		public boolean verify(String hostname, SSLSession session) {
 			return true;
 		}
 	};
+
 	private static void trustEveryone() {
 		try {
-			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier(){
-	    			public boolean verify(String hostname, SSLSession session) {
-	    				return true;
-	    			}});
+			HttpsURLConnection
+					.setDefaultHostnameVerifier(new HostnameVerifier() {
+						public boolean verify(String hostname,
+								SSLSession session) {
+							return true;
+						}
+					});
 			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null, new X509TrustManager[]{new X509TrustManager(){
+			context.init(null, new X509TrustManager[] { new X509TrustManager() {
 				public void checkClientTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {}
+						String authType) throws CertificateException {
+				}
+
 				public void checkServerTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {}
+						String authType) throws CertificateException {
+				}
+
 				public X509Certificate[] getAcceptedIssuers() {
 					return new X509Certificate[0];
-				}}}, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(
-					context.getSocketFactory());
+				}
+			} }, new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(context
+					.getSocketFactory());
 		} catch (Exception e) { // should never happen
 			e.printStackTrace();
 		}
