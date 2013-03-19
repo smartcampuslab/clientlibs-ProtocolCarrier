@@ -81,12 +81,11 @@ public class Communicator {
 						responseTimeout.intValue());
 				HttpConnectionParams.setSoTimeout(httpParameters,
 						responseTimeout.intValue());
-				httpClient = new DefaultHttpClient(httpParameters);
-				// httpClient =
-				// HttpsClientBuilder.getNewHttpClient(httpParameters);
+				// httpClient = new DefaultHttpClient(httpParameters);
+				httpClient = new HttpsClientBuilder().getNewHttpClient(httpParameters);
 			} else {
-				// httpClient = HttpsClientBuilder.getNewHttpClient(null);
-				httpClient = new DefaultHttpClient();
+				httpClient = new HttpsClientBuilder().getNewHttpClient(null);
+				// httpClient = new DefaultHttpClient();
 			}
 
 			HttpRequestBase request = buildRequest(msgRequest, appToken,

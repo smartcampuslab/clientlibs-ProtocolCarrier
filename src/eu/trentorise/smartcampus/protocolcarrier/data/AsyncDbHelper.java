@@ -102,7 +102,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 		String having = null;
 		String orderBy = null;
 
-		if (appToken != null && !appToken.isEmpty()) {
+		if (appToken != null && appToken.length() > 0) {
 			selection = new String();
 			selection += Setup.DB_ASYNC_COL_APP_TOKEN + "=?";
 			selectionArgs = new String[] { appToken };
@@ -137,7 +137,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 		String having = null;
 		String orderBy = null;
 
-		if (appToken != null && !appToken.isEmpty()) {
+		if (appToken != null && appToken.length() > 0) {
 			selection = new String();
 			selection += Setup.DB_ASYNC_COL_APP_TOKEN + "=?";
 			selectionArgs = new String[] { appToken };
@@ -183,7 +183,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 		String having = null;
 		String orderBy = null;
 
-		if (appToken != null && !appToken.isEmpty()) {
+		if (appToken != null && appToken.length() > 0) {
 			selection = new String();
 			selection += Setup.DB_ASYNC_COL_APP_TOKEN + "=?";
 			selectionArgs = new String[] { appToken };
@@ -238,7 +238,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 		String having = null;
 		String orderBy = null;
 
-		if (appToken != null && !appToken.isEmpty() && uuid != null && !uuid.isEmpty()) {
+		if (appToken != null && appToken.length() > 0 && uuid != null && uuid.length() > 0) {
 			selection = new String();
 			selection += Setup.DB_ASYNC_COL_APP_TOKEN + "=?" + " AND " + Setup.DB_ASYNC_COL_UUID + "=?";
 			selectionArgs = new String[] { appToken, uuid };
@@ -286,7 +286,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 
 	// delete all AsyncMessageRequests
 	public void deleteAsyncMessageRequests(String appToken) {
-		if (appToken != null && !appToken.isEmpty()) {
+		if (appToken != null && appToken.length() > 0) {
 			String where = Setup.DB_ASYNC_COL_APP_TOKEN + "=?";
 			String[] whereArgs = new String[] { appToken };
 			this.getWritableDatabase().delete(Setup.DB_ASYNC_TABLE, where, whereArgs);
@@ -297,7 +297,7 @@ public class AsyncDbHelper extends SQLiteOpenHelper {
 
 	// delete AsyncMessageRequest by uuid
 	public void deleteAsyncMessageRequestByUuid(String appToken, String uuid) {
-		if (appToken != null && !appToken.isEmpty() && uuid != null && !uuid.isEmpty()) {
+		if (appToken != null && appToken.length() > 0 && uuid != null && uuid.length() > 0) {
 			String where = Setup.DB_ASYNC_COL_APP_TOKEN + "=?" + " AND " + Setup.DB_ASYNC_COL_UUID + "=?";
 			String[] whereArgs = new String[] { appToken, uuid };
 			this.getWritableDatabase().delete(Setup.DB_ASYNC_TABLE, where, whereArgs);
