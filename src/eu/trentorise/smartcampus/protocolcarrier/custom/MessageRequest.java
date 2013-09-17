@@ -16,6 +16,7 @@
 package eu.trentorise.smartcampus.protocolcarrier.custom;
 
 import java.util.List;
+import java.util.Map;
 
 import eu.trentorise.smartcampus.protocolcarrier.common.Constants.Method;
 
@@ -29,7 +30,8 @@ public class MessageRequest {
 	private boolean requestFile = false;
 	private String query; // not required
 	private String contentType = "application/json"; // not required
-
+	private Map<String,String> customHeaders;
+	
 	public MessageRequest(String targetHost, String targetAddress) {
 		if (targetHost == null || targetAddress == null) {
 			throw new IllegalArgumentException(
@@ -113,5 +115,13 @@ public class MessageRequest {
 
 	public void setRequestParams(List<RequestParam> requestParams) {
 		this.requestParams = requestParams;
+	}
+
+	public Map<String, String> getCustomHeaders() {
+		return customHeaders;
+	}
+
+	public void setCustomHeaders(Map<String, String> customHeaders) {
+		this.customHeaders = customHeaders;
 	}
 }

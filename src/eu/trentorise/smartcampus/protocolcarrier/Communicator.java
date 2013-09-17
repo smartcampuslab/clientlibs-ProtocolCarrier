@@ -20,16 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -44,7 +35,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -81,11 +71,9 @@ public class Communicator {
 						responseTimeout.intValue());
 				HttpConnectionParams.setSoTimeout(httpParameters,
 						responseTimeout.intValue());
-				// httpClient = new DefaultHttpClient(httpParameters);
-				httpClient = new HttpsClientBuilder().getNewHttpClient(httpParameters);
+				httpClient = HttpsClientBuilder.getNewHttpClient(httpParameters);
 			} else {
-				httpClient = new HttpsClientBuilder().getNewHttpClient(null);
-				// httpClient = new DefaultHttpClient();
+				httpClient = HttpsClientBuilder.getNewHttpClient(null);
 			}
 
 			HttpRequestBase request = buildRequest(msgRequest, appToken,
@@ -139,37 +127,17 @@ public class Communicator {
 		return msgResponse;
 	}
 
-	private static HttpRequestBase buildRequest(MessageRequest msgRequest,
-			String appToken, String authToken) throws URISyntaxException,
+	private static HttpRequestBase buildRequest(MessageRequest msgRequest, String appToken, String authToken) throws URISyntaxException,
 			UnsupportedEncodingException {
-		String[] targetHostTokens = msgRequest.getTargetHost().split("://");
-		String scheme = null;
-		String host = null;
-		if (targetHostTokens.length > 1) {
-			scheme = targetHostTokens[0];
-			host = targetHostTokens[1];
-		} else {
-			scheme = Constants.URI_DEFAULT_SCHEME;
-			host = targetHostTokens[0];
-		}
-		targetHostTokens = host.split(":");
-
-		int port = targetHostTokens.length > 1 ? Integer
-				.parseInt(targetHostTokens[1]) : Constants.URI_DEFAULT_PORT
-				.get(scheme);
-		host = targetHostTokens[0];
-		String path = msgRequest.getTargetAddress();
-		if (!path.startsWith("/"))
-			path = "/" + path;
-
-		URI uri = new URI(scheme, null, host, port, path,
-				msgRequest.getQuery(), null);
-
-		String uriString = uri.toString();
-		// String uriString = msgRequest.getTargetHost()+path;
-		// if (msgRequest.getQuery() != null) {
-		// uriString += "?"+msgRequest.getQuery();
-		// }
+		String host = msgRequest.getTargetHost();
+		if (host == null) throw new URISyntaxException(host,"null URI");
+		if (!host.endsWith("/")) host += '/';
+		String address = msgRequest.getTargetAddress();
+		if (address == null) address = ""; 
+		if (address.startsWith("/")) address = address.substring(1);
+		String uriString = host+address;
+		if (msgRequest.getQuery() != null) uriString += "?"+msgRequest.getQuery();
+		new URI(uriString);
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
@@ -233,11 +201,22 @@ public class Communicator {
 			request = new HttpGet(uriString);
 		}
 
-		request.addHeader(RequestHeader.APP_TOKEN.toString(), appToken);
-		request.addHeader(RequestHeader.AUTH_TOKEN.toString(), authToken);
-		request.addHeader(RequestHeader.ACCEPT.toString(),
-				msgRequest.getContentType());
-
+		// default headers
+		if (appToken != null) {
+			request.addHeader(RequestHeader.APP_TOKEN.toString(), appToken);
+		}
+		if (authToken != null) {
+			// is here for compatibility
+			request.addHeader(RequestHeader.AUTH_TOKEN.toString(), authToken);
+			request.addHeader(RequestHeader.AUTHORIZATION.toString(), "Bearer " + authToken);
+		}
+		request.addHeader(RequestHeader.ACCEPT.toString(), msgRequest.getContentType());
+		if (msgRequest.getCustomHeaders() != null) {
+			for (String key : msgRequest.getCustomHeaders().keySet()) {
+				request.addHeader(key,msgRequest.getCustomHeaders().get(key));
+			}
+		}
+		
 		return request;
 	}
 
@@ -250,42 +229,6 @@ public class Communicator {
 		} catch (Exception e) {
 			throw new IllegalArgumentException(
 					"ObjectRequestParam cannot convert in JSON");
-		}
-	}
-
-	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
-		public boolean verify(String hostname, SSLSession session) {
-			return true;
-		}
-	};
-
-	private static void trustEveryone() {
-		try {
-			HttpsURLConnection
-					.setDefaultHostnameVerifier(new HostnameVerifier() {
-						public boolean verify(String hostname,
-								SSLSession session) {
-							return true;
-						}
-					});
-			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null, new X509TrustManager[] { new X509TrustManager() {
-				public void checkClientTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {
-				}
-
-				public void checkServerTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {
-				}
-
-				public X509Certificate[] getAcceptedIssuers() {
-					return new X509Certificate[0];
-				}
-			} }, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(context
-					.getSocketFactory());
-		} catch (Exception e) { // should never happen
-			e.printStackTrace();
 		}
 	}
 }
