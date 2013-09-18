@@ -42,8 +42,8 @@ public class AsyncProtocolCarrier extends ProtocolCarrier {
 
 	public String invokeAsync(MessageRequest msgRequest, String appToken, String authToken, String callback,
 			DeferredConf deferredConf) {
-		if (msgRequest == null || appToken == null || authToken == null) {
-			throw new IllegalArgumentException("msgRequest, appToken and authToken cannot be null", null);
+		if (msgRequest == null) {
+			throw new IllegalArgumentException("msgRequest cannot be null", null);
 		}
 
 		String messageID = dbHelper.addAsyncMessageRequest(msgRequest, appToken, authToken, callback, deferredConf);

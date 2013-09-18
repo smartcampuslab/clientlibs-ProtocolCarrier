@@ -35,8 +35,8 @@ public class ProtocolCarrier {
 
 	public MessageResponse invokeSync(MessageRequest msgRequest, String appToken, String authToken)
 			throws ConnectionException, ProtocolException, SecurityException {
-		if (msgRequest == null || appToken == null || authToken == null) {
-			throw new IllegalArgumentException("msgRequest, appToken and authToken cannot be null", null);
+		if (msgRequest == null) {
+			throw new IllegalArgumentException("msgRequest cannot be null", null);
 		}
 
 		MessageResponse msgResponse = null;

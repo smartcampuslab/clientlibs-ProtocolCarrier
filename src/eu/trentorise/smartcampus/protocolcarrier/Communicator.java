@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -201,20 +202,25 @@ public class Communicator {
 			request = new HttpGet(uriString);
 		}
 
+		Map<String,String> headers = new HashMap<String, String>();
+		
 		// default headers
 		if (appToken != null) {
-			request.addHeader(RequestHeader.APP_TOKEN.toString(), appToken);
+			headers.put(RequestHeader.APP_TOKEN.toString(), appToken);
 		}
 		if (authToken != null) {
 			// is here for compatibility
-			request.addHeader(RequestHeader.AUTH_TOKEN.toString(), authToken);
-			request.addHeader(RequestHeader.AUTHORIZATION.toString(), "Bearer " + authToken);
+			headers.put(RequestHeader.AUTH_TOKEN.toString(), authToken);
+			headers.put(RequestHeader.AUTHORIZATION.toString(), "Bearer " + authToken);
 		}
-		request.addHeader(RequestHeader.ACCEPT.toString(), msgRequest.getContentType());
+		headers.put(RequestHeader.ACCEPT.toString(), msgRequest.getContentType());
+		
 		if (msgRequest.getCustomHeaders() != null) {
-			for (String key : msgRequest.getCustomHeaders().keySet()) {
-				request.addHeader(key,msgRequest.getCustomHeaders().get(key));
-			}
+			headers.putAll(msgRequest.getCustomHeaders());
+		}
+
+		for (String key : headers.keySet()) {
+			request.addHeader(key,headers.get(key));
 		}
 		
 		return request;
