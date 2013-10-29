@@ -139,7 +139,6 @@ public class Communicator {
 		if (address == null) address = ""; 
 		if (address.startsWith("/")) address = address.substring(1);
 		String uriString = host+address;
-		if (msgRequest.getQuery() != null) uriString += "?"+msgRequest.getQuery();
 		try {
 			URL url = new URL(uriString);
 			URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
@@ -147,6 +146,7 @@ public class Communicator {
 		} catch (MalformedURLException e) {
 			throw new URISyntaxException(uriString, e.getMessage());
 		}
+		if (msgRequest.getQuery() != null) uriString += "?"+msgRequest.getQuery();
 		
 //		new URI(uriString);
 
