@@ -17,9 +17,11 @@ package eu.trentorise.smartcampus.protocolcarrier;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -138,7 +140,15 @@ public class Communicator {
 		if (address.startsWith("/")) address = address.substring(1);
 		String uriString = host+address;
 		if (msgRequest.getQuery() != null) uriString += "?"+msgRequest.getQuery();
-		new URI(uriString);
+		try {
+			URL url = new URL(uriString);
+			URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+			uriString = uri.toURL().toString();
+		} catch (MalformedURLException e) {
+			throw new URISyntaxException(uriString, e.getMessage());
+		}
+		
+//		new URI(uriString);
 
 		HttpRequestBase request = null;
 		if (msgRequest.getMethod().equals(Method.POST)) {
